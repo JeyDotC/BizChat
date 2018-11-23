@@ -11,4 +11,18 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.5" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Areas\Api\Data\" />
+    <Folder Include="Areas\Api\Models\" />
+    <Folder Include="Areas\Api\Views\" />
+    <Folder Include="Areas\Identity\Services\" />
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bizchat.Core\Bizchat.Core.csproj" />
+    <ProjectReference Include="..\Bizchat.Ef\Bizchat.Ef.csproj" />
+    <ProjectReference Include="..\Bizchat.NServiceBus\Bizchat.NServiceBus.csproj" />
+  </ItemGroup>
+
 </Project>

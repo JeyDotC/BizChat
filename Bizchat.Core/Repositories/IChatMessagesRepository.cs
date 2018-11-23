@@ -6,10 +6,12 @@ using Bizchat.Core.Entities;
 
 namespace Bizchat.Core.Repositories
 {
-    public interface IMessagesRepository
+    public interface IChatMessagesRepository
     {
         IQueryable<ChatMessage> List { get; }
 
         void Add(ChatMessage message);
+
+        void Update(ChatMessage message);
     }
 }

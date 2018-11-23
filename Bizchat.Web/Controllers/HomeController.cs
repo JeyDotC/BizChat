@@ -12,6 +12,11 @@ namespace Bizchat.Web.Controllers
     {
         public IActionResult Index()
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "ChatRooms");
+            }
+
             return View();
         }
 

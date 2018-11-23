@@ -1,0 +1,124 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Chat Rooms</h2>
+
+<div class="modal fade" id="add-chatroom-modal" tabindex="-1" role="dialog" aria-labelledby="add-chatroom-modal-label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="add-chatroom-modal-label">New Chat room</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-inline">
+                    <div class="form-group">
+                        <label for="add-chatroom-title">Title:</label>
+                        <input id="add-chatroom-title"
+                               data-bind="value: NewChatRoom().Title"
+                               type="text"
+                               class="form-control"
+                               required
+                               placeholder="New Chat room name"/>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bind="click: AddChatRoom">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="chatroom-members-modal" tabindex="-1" role="dialog" aria-labelledby="chatroom-members-modal-label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="chatroom-members-modal-label">
+                    <span data-bind="text: ActiveChatRoom().Title"></span> Members
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <input class="form-control" type="text" placeholder="Search user to add" 
+                           data-bind="value: UserSearchQuery" />
+                    <span class="input-group-btn">
+                        <button id="searchButton" class="btn btn-default" type="button"
+                                data-bind="click: SearchUsers">Search</button>
+                    </span>
+                </div>
+                
+                <div class="list-group" data-bind="foreach: UserSearchResult">
+                    <a href="#" class="list-group-item clearfix" title="Add this user to the chat room."
+                       data-bind="click: $root.AddUserToChatRoom">
+                        <i class="glyphicon glyphicon-plus"></i> <span data-bind="text: Name"></span>
+                    </a>
+                </div>
+
+                <ul data-bind="foreach: ActiveChatRoom().Members">
+                    <li data-bind="text: Name"></li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                @*<button type="button" class="btn btn-primary" data-bind="click: AddChatRoom">Save</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4>
+                    <button class="btn btn-sm btn-success" title="Add new chat group"
+                            data-toggle="modal" data-target="#add-chatroom-modal">
+                        <i class="glyphicon glyphicon-plus"></i>
+                    </button> 
+                    Chat rooms
+                </h4>
+            </div>
+            <div class="list-group" data-bind="foreach: ChatRooms.Listed">
+                <a class="list-group-item" 
+                   data-bind="text: Title, 
+                              css: { active: Id() == $root.ActiveChatRoom().Id() }, 
+                              attr: { href: '#' + Id() }">
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <h4 data-bind="text: ActiveChatRoom().Title"></h4>
+        <div>
+            <button class="btn btn-default btn-sm"
+                    data-toggle="modal" data-target="#chatroom-members-modal"
+                    data-bind="visible: ActiveChatRoom().Id">
+                <i class="glyphicon glyphicon-user"></i> 
+                <span data-bind="text: ActiveChatRoom().Members().length"></span> 
+                Members
+            </button>
+        </div>
+        <div>
+            <textarea class="form-control" rows="3" placeholder="Message"></textarea>
+            <button class="btn btn-primary btn-block">Send</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ChatUserViewModel.js"></script>
+    <script src="~/js/ChatUsersViewModel.js"></script>
+    
+    <script src="~/js/ChatMessageViewModel.js"></script>
+    <script src="~/js/ChatMessagesViewModel.js"></script>
+
+    <script src="~/js/ChatRoomViewModel.js"></script>
+    <script src="~/js/ChatRoomsViewModel.js"></script>
+    
+    <script src="~/js/ChatRooms.Index.js"></script>
+}

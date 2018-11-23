@@ -2,16 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bizchat.Core.Repositories;
+using Bizchat.Core.Services;
+using Bizchat.Ef;
+using Bizchat.Ef.Repositories;
+using Bizchat.NServiceBus;
+using Bizchat.NServiceBus.Services;
+using Bizchat.Web.Data;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Bizchat.Web.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NServiceBus;
 
 namespace Bizchat.Web
 {
@@ -38,8 +45,34 @@ namespace Bizchat.Web
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddDbContext<BizchatDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection"),
+                    b => b.MigrationsAssembly("Bizchat.Web")));
+
+            services.AddDefaultIdentity<IdentityUser>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+            })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddTransient<IChatRoomsRepository, EfChatRoomsRepository>();
+            services.AddTransient<IChatUsersRepository, EfChatUsersRepository>();
+            services.AddTransient<IChatMessagesRepository, EfChatMessagesRepository>();
+
+            services.AddTransient<IQueueMessagesService, NServiceBusQueueMessagesService>();
+
+            // NServiceBus settings
+            var endpointConfiguration = EndPointConfigurationFactory.Create();
+
+            /*var routing = transport.Routing();
+            routing.RouteToEndpoint(
+                assembly: typeof(MyMessage).Assembly,
+                destination: "Samples.ASPNETCore.Endpoint");*/
+
+            var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
+            services.AddSingleton<IMessageSession>(endpoint);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -69,6 +102,10 @@ namespace Bizchat.Web
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+
+                routes.MapRoute(
+                    name: "areas",
+                    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

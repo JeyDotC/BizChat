@@ -2,20 +2,22 @@
 using System.Collections.Generic;
 using Bizchat.Core.Entities;
 
-namespace Bizchat.Core.Services
+namespace Bizchat.Core.Events
 {
-    public class MessageToQueue : IEquatable<MessageToQueue>
+    public class ChatMessageSentEvent : IEquatable<ChatMessageSentEvent>
     {
         public string RoutingKey { get; set; }
 
         public ChatMessage Contents { get; set; }
 
+        public object ExtraInfo { get; set; }
+
         public override bool Equals(object obj)
         {
-            return Equals(obj as MessageToQueue);
+            return Equals(obj as ChatMessageSentEvent);
         }
 
-        public bool Equals(MessageToQueue other)
+        public bool Equals(ChatMessageSentEvent other)
         {
             return other != null &&
                    RoutingKey == other.RoutingKey &&
@@ -27,12 +29,12 @@ namespace Bizchat.Core.Services
             return HashCode.Combine(RoutingKey, Contents);
         }
 
-        public static bool operator ==(MessageToQueue queue1, MessageToQueue queue2)
+        public static bool operator ==(ChatMessageSentEvent queue1, ChatMessageSentEvent queue2)
         {
-            return EqualityComparer<MessageToQueue>.Default.Equals(queue1, queue2);
+            return EqualityComparer<ChatMessageSentEvent>.Default.Equals(queue1, queue2);
         }
 
-        public static bool operator !=(MessageToQueue queue1, MessageToQueue queue2)
+        public static bool operator !=(ChatMessageSentEvent queue1, ChatMessageSentEvent queue2)
         {
             return !(queue1 == queue2);
         }

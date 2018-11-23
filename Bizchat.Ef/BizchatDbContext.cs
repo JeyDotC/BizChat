@@ -20,9 +20,12 @@ namespace Bizchat.Ef
 
         public DbSet<ChatRoomMembership> ChatRoomMemberships { get; set; }
 
+        public DbSet<ChatRoomReceivedMessages> ChatRoomReceivedMessages { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ChatRoomMembership>().HasKey(m => new { m.ChatRoomId, m.ChatUserId });
+            modelBuilder.Entity<ChatRoomReceivedMessages>().HasKey(m => new { m.ChatRoomId, m.ChatMessageId });
         }
     }
 }

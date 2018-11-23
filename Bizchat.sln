@@ -9,9 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bizchat.Core", "Bizchat.Cor
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{DC0C4451-C856-4348-A78F-A931E203D1DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bizchat.Core.Tests", "Bizchat.Core.Tests\Bizchat.Core.Tests.csproj", "{E92ACCF4-80CF-4A47-8FE2-307634C05507}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bizchat.Core.Tests", "Bizchat.Core.Tests\Bizchat.Core.Tests.csproj", "{E92ACCF4-80CF-4A47-8FE2-307634C05507}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bizchat.Ef", "Bizchat.Ef\Bizchat.Ef.csproj", "{9309F02F-96E3-4048-8A88-05F5EBE165C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bizchat.Ef", "Bizchat.Ef\Bizchat.Ef.csproj", "{9309F02F-96E3-4048-8A88-05F5EBE165C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bizchat.NServiceBus", "Bizchat.NServiceBus\Bizchat.NServiceBus.csproj", "{466579A4-1574-439F-AE07-47A92D468B05}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NServiceBus", "NServiceBus", "{CC55A91E-97BF-44F7-A440-551C1CF9BD96}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bizchat.DeliverToChatRoomApp.NServicebus", "Bizchat.DeliverToChatRoomApp.NServicebus\Bizchat.DeliverToChatRoomApp.NServicebus.csproj", "{75BFCFB5-FA34-471A-8286-C1DC70D55D02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,12 +41,22 @@ Global
 		{9309F02F-96E3-4048-8A88-05F5EBE165C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9309F02F-96E3-4048-8A88-05F5EBE165C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9309F02F-96E3-4048-8A88-05F5EBE165C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{466579A4-1574-439F-AE07-47A92D468B05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{466579A4-1574-439F-AE07-47A92D468B05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{466579A4-1574-439F-AE07-47A92D468B05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{466579A4-1574-439F-AE07-47A92D468B05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75BFCFB5-FA34-471A-8286-C1DC70D55D02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75BFCFB5-FA34-471A-8286-C1DC70D55D02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75BFCFB5-FA34-471A-8286-C1DC70D55D02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75BFCFB5-FA34-471A-8286-C1DC70D55D02}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E92ACCF4-80CF-4A47-8FE2-307634C05507} = {DC0C4451-C856-4348-A78F-A931E203D1DC}
+		{466579A4-1574-439F-AE07-47A92D468B05} = {CC55A91E-97BF-44F7-A440-551C1CF9BD96}
+		{75BFCFB5-FA34-471A-8286-C1DC70D55D02} = {CC55A91E-97BF-44F7-A440-551C1CF9BD96}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {283E66EA-7A03-436D-AC26-90EEA0D59D4C}

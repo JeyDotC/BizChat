@@ -3,41 +3,43 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Bizchat.Core.Entities;
+using Bizchat.Core.Events;
 using Bizchat.Core.Services;
+using Bizchat.Core.Verbs;
 using Moq;
 using Shouldly;
 using Xunit;
 
-namespace Bizchat.Core.Tests.Services
+namespace Bizchat.Core.Tests.Verbs
 {
-    public class MessageSenderServiceTests
+    public class SendMessageVerbTests
     {
         private readonly Mock<IQueueMessagesService> _queueMessagesServiceMock = new Mock<IQueueMessagesService>();
 
-        public MessageSenderServiceTests()
+        public SendMessageVerbTests()
         {
 
         }
 
         [Theory]
         [MemberData(nameof(BasicUseCase))]
-        public async Task Test1(
+        public async Task Run_WhenProvidedRoutersAndMessage_ShouldProduceMessagesToQueue(
             IEnumerable<IRouteMessagesService> routers, 
             ChatMessage message, 
-            IEnumerable<MessageToQueue> expectedMessagesToQueue)
+            IEnumerable<ChatMessageSentEvent> expectedMessagesToQueue)
         {
             // Arrange
-            var receivedMessagesToQueue = new List<MessageToQueue>();
+            var receivedMessagesToQueue = new List<ChatMessageSentEvent>();
 
-            _queueMessagesServiceMock.Setup(q => q.QueueMessage(It.IsAny<MessageToQueue>()))
-                .Callback<MessageToQueue>(receivedMessagesToQueue.Add)
+            _queueMessagesServiceMock.Setup(q => q.QueueMessage(It.IsAny<ChatMessageSentEvent>()))
+                .Callback<ChatMessageSentEvent>(receivedMessagesToQueue.Add)
                 .Returns(Task.CompletedTask);
 
             var queuer = _queueMessagesServiceMock.Object;
-            var messageSenderService = new MessageSenderService(queuer, routers);
+            var messageSenderService = new SendMessageVerb(queuer, routers);
 
             // Act
-            await messageSenderService.SendMessage(message);
+            await messageSenderService.Run(message);
 
             // Assert
             this.ShouldSatisfyAllConditions(
@@ -56,7 +58,7 @@ namespace Bizchat.Core.Tests.Services
                     Destination = "World",
                 };
                 var simpleRouterMock = new Mock<IRouteMessagesService>();
-                var simpleMessageToQueue = new MessageToQueue
+                var simpleMessageToQueue = new ChatMessageSentEvent
                     {
                         Contents = simpleMessage,
                         RoutingKey = "ChatRoom"
@@ -69,7 +71,7 @@ namespace Bizchat.Core.Tests.Services
                     .Returns(false);
 
                 simpleRouterMock.Setup(r => r.Route(It.IsAny<ChatMessage>()))
-                    .Returns<ChatMessage>(message => new MessageToQueue
+                    .Returns<ChatMessage>(message => new ChatMessageSentEvent
                     {
                         Contents = message,
                         RoutingKey = "ChatRoom"
@@ -80,7 +82,7 @@ namespace Bizchat.Core.Tests.Services
                 {
                     new IRouteMessagesService[]{ simpleRouterMock.Object },
                     simpleMessage,
-                    new MessageToQueue[]{ simpleMessageToQueue }
+                    new ChatMessageSentEvent[]{ simpleMessageToQueue }
                 };
 
                 var secondaryRouterMock = new Mock<IRouteMessagesService>();
@@ -92,13 +94,13 @@ namespace Bizchat.Core.Tests.Services
                     .Returns(false);
 
                 secondaryRouterMock.Setup(r => r.Route(It.IsAny<ChatMessage>()))
-                    .Returns<ChatMessage>(message => new MessageToQueue
+                    .Returns<ChatMessage>(message => new ChatMessageSentEvent
                     {
                         Contents = message,
                         RoutingKey = "SecondChatRoom"
                     });
 
-                var simpleMessageToQueue2 = new MessageToQueue
+                var simpleMessageToQueue2 = new ChatMessageSentEvent
                 {
                     Contents = simpleMessage,
                     RoutingKey = "SecondChatRoom"
@@ -109,7 +111,7 @@ namespace Bizchat.Core.Tests.Services
                 {
                     new IRouteMessagesService[]{ simpleRouterMock.Object, secondaryRouterMock.Object },
                     simpleMessage,
-                    new MessageToQueue[]{ simpleMessageToQueue, simpleMessageToQueue2 }
+                    new ChatMessageSentEvent[]{ simpleMessageToQueue, simpleMessageToQueue2 }
                 };
 
                 var excludingRouterMock = new Mock<IRouteMessagesService>();
@@ -121,13 +123,13 @@ namespace Bizchat.Core.Tests.Services
                     .Returns(true);
 
                 excludingRouterMock.Setup(r => r.Route(It.IsAny<ChatMessage>()))
-                    .Returns<ChatMessage>(message => new MessageToQueue
+                    .Returns<ChatMessage>(message => new ChatMessageSentEvent
                     {
                         Contents = message,
                         RoutingKey = "MrBot"
                     });
 
-                var messageRoutedToExcludingQueue = new MessageToQueue
+                var messageRoutedToExcludingQueue = new ChatMessageSentEvent
                 {
                     Contents = simpleMessage,
                     RoutingKey = "MrBot"
@@ -148,7 +150,7 @@ namespace Bizchat.Core.Tests.Services
                         secondaryRouterMock.Object
                     },
                     simpleMessage,
-                    new MessageToQueue[]
+                    new ChatMessageSentEvent[]
                     {
                         simpleMessageToQueue,
                         simpleMessageToQueue2
@@ -165,7 +167,7 @@ namespace Bizchat.Core.Tests.Services
                         secondaryRouterMock.Object
                     },
                     simpleMessage,
-                    new MessageToQueue[]{ messageRoutedToExcludingQueue }
+                    new ChatMessageSentEvent[]{ messageRoutedToExcludingQueue }
                 };
             }
         }
