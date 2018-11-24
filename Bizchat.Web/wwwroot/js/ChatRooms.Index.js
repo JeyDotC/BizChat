@@ -34,7 +34,31 @@
             self.ActiveChatRoom().Members.push(user);
         });
 
+    self.LoadChatRoomMessages = () => {
+        if (!self.ActiveChatRoom().Id()) {
+            return;
+        }
+
+        var oldLength = self.ReceivedMessages.Listed().length;
+
+        self.ReceivedMessages.LoadByChatRoom(self.ActiveChatRoom().Id())
+            .done(() => {
+                if (oldLength === self.ReceivedMessages.Listed().length) {
+                    return;
+                }
+                ScrollChatWindowDown();
+            });
+    };
+
+    function ScrollChatWindowDown() {
+        var receivedMessages = $receivedMessages[0];
+        receivedMessages.scrollTo(0, receivedMessages.scrollHeight);
+    }
+
     function Init() {
+
+        self.ReceivedMessages.OnNewMessage = ScrollChatWindowDown;
+
         self.ChatRooms.List().done(() => {
             Sammy(function () {
                 this.get('#:id', function () {
@@ -43,17 +67,14 @@
                     if (activeChatRooms.length > 0) {
                         self.ActiveChatRoom(activeChatRooms[0]);
                         self.ActiveChatRoom().ListMembers();
-
-                        self.ReceivedMessages.Listed([]);
-                        self.ReceivedMessages.LoadByChatRoom(self.ActiveChatRoom().Id())
-                            .done(() => {
-                                var receivedMessages = $receivedMessages[0];
-                                receivedMessages.scrollTo(0, receivedMessages.scrollHeight);
-                            });
+                        
+                        self.LoadChatRoomMessages();
                     }
                 });
 
             }).run();
+
+            self.ReceivedMessages.SetupHub();
         });
 
         $addChatroomModal.on('hidden.bs.modal', function (e) {

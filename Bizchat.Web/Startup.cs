@@ -9,13 +9,17 @@ using Bizchat.Ef;
 using Bizchat.Ef.Repositories;
 using Bizchat.NServiceBus;
 using Bizchat.NServiceBus.Services;
+using Bizchat.Web.BusHandlers;
 using Bizchat.Web.Data;
+using Bizchat.Web.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,13 +71,31 @@ namespace Bizchat.Web
             services.AddTransient<IQueueMessagesService, NServiceBusQueueMessagesService>();
             services.AddTransient<SendMessageVerb>();
 
+            // SignalR simply doesn't work!
+            services.AddSignalR();
+
+            services.AddSingleton(c =>
+            {
+                var name = "chatMessagesHub";
+                var url = $"{Configuration["RootUrl"]}/{name}";
+
+                var connection = new HubConnectionBuilder()
+                    .WithUrl(url)
+                    .Build();
+
+
+                connection.StartAsync().Wait();
+
+                return connection;
+            });
+
             // NServiceBus settings
             var endpointConfiguration = EndPointConfigurationFactory.Create();
 
-            /*var routing = transport.Routing();
-            routing.RouteToEndpoint(
-                assembly: typeof(MyMessage).Assembly,
-                destination: "Samples.ASPNETCore.Endpoint");*/
+            endpointConfiguration.UseContainer<ServicesBuilder>(customizations =>
+            {
+                customizations.ExistingServices(services);
+            });
 
             var endpoint = Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
             services.AddSingleton<IMessageSession>(endpoint);
@@ -84,6 +106,7 @@ namespace Bizchat.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -100,6 +123,12 @@ namespace Bizchat.Web
             app.UseCookiePolicy();
 
             app.UseAuthentication();
+
+            // SignalR simply doesn't work!
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<ChatMessagesHub>("/chatMessagesHub");
+            });
 
             app.UseMvc(routes =>
             {

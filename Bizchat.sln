@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NServiceBus", "NServiceBus"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bizchat.DeliverToChatRoomApp.NServicebus", "Bizchat.DeliverToChatRoomApp.NServicebus\Bizchat.DeliverToChatRoomApp.NServicebus.csproj", "{75BFCFB5-FA34-471A-8286-C1DC70D55D02}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bizchat.NotificationsHub", "Bizchat.NotificationsHub\Bizchat.NotificationsHub.csproj", "{86253255-AA81-4383-B914-0B15355D6AE5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{75BFCFB5-FA34-471A-8286-C1DC70D55D02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75BFCFB5-FA34-471A-8286-C1DC70D55D02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75BFCFB5-FA34-471A-8286-C1DC70D55D02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86253255-AA81-4383-B914-0B15355D6AE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86253255-AA81-4383-B914-0B15355D6AE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86253255-AA81-4383-B914-0B15355D6AE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86253255-AA81-4383-B914-0B15355D6AE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,6 +56,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{466579A4-1574-439F-AE07-47A92D468B05} = {CC55A91E-97BF-44F7-A440-551C1CF9BD96}
 		{75BFCFB5-FA34-471A-8286-C1DC70D55D02} = {CC55A91E-97BF-44F7-A440-551C1CF9BD96}
+		{86253255-AA81-4383-B914-0B15355D6AE5} = {CC55A91E-97BF-44F7-A440-551C1CF9BD96}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {283E66EA-7A03-436D-AC26-90EEA0D59D4C}

@@ -12,8 +12,12 @@ namespace Bizchat.Web
 {
     public class Program
     {
+        internal static IWebHostBuilder WebHostBuilder;
+
         public static void Main(string[] args)
         {
+            WebHostBuilder = CreateWebHostBuilder(args);
+
             CreateWebHostBuilder(args).Build().Run();
         }
 
