@@ -1,11 +1,15 @@
 ﻿function ChatRoomsIndexViewModel() {
     var self = this;
+
+    // Elements
     var $addChatroomModal = $('#add-chatroom-modal');
     var $chatroomMembersModal = $('#chatroom-members-modal');
+    var $receivedMessages = $("#received-messages");
 
     // ViewModels
     self.ChatRooms = new ChatRoomsViewModel();
     self.ChatUsers = new ChatUsersViewModel();
+    self.ReceivedMessages = new ChatMessagesReceivedByChatRoomsViewModel();
 
     // Observables
     self.NewChatRoom = ko.observable(new ChatRoomViewModel());
@@ -39,6 +43,13 @@
                     if (activeChatRooms.length > 0) {
                         self.ActiveChatRoom(activeChatRooms[0]);
                         self.ActiveChatRoom().ListMembers();
+
+                        self.ReceivedMessages.Listed([]);
+                        self.ReceivedMessages.LoadByChatRoom(self.ActiveChatRoom().Id())
+                            .done(() => {
+                                var receivedMessages = $receivedMessages[0];
+                                receivedMessages.scrollTo(0, receivedMessages.scrollHeight);
+                            });
                     }
                 });
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Bizchat.Core.Entities;
+using Bizchat.Core.Events;
 using Bizchat.Core.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,15 +18,16 @@ namespace Bizchat.Web.Areas.Api.Controllers
     {
         private readonly IChatRoomsRepository _chatRoomsRepository;
         private readonly IChatUsersRepository _chatUsersRepository;
+        private readonly IChatMessageReceivedByChatRoomEventsRepository _receivedMessages;
 
-        private string WebUserId => User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value;
-
-        private ChatUser GetCurrentChatUser() => _chatUsersRepository.List.First(u => u.UserId == WebUserId);
-
-        public ChatRoomsController(IChatRoomsRepository chatRoomsRepository, IChatUsersRepository chatUsersRepository)
+        public ChatRoomsController(
+            IChatRoomsRepository chatRoomsRepository, 
+            IChatUsersRepository chatUsersRepository,
+            IChatMessageReceivedByChatRoomEventsRepository receivedMessages)
         {
             _chatRoomsRepository = chatRoomsRepository;
             _chatUsersRepository = chatUsersRepository;
+            _receivedMessages = receivedMessages;
         }
 
         [HttpGet]
@@ -37,7 +39,7 @@ namespace Bizchat.Web.Areas.Api.Controllers
         [HttpGet("my")]
         public IEnumerable<ChatRoom> ListUserChatRooms()
         {
-            var user = GetCurrentChatUser();
+            var user = _chatUsersRepository.FindByPrincipal(User);
 
             return _chatRoomsRepository.ListWhereUserIsMember(user);
         }
@@ -53,7 +55,7 @@ namespace Bizchat.Web.Areas.Api.Controllers
         [HttpPost("{chatRoomId}/Join")]
         public void Join(int chatRoomId)
         {
-            var user = GetCurrentChatUser();
+            var user = _chatUsersRepository.FindByPrincipal(User);
 
             _chatRoomsRepository.AddMember(chatRoomId, user);
         }
@@ -62,10 +64,18 @@ namespace Bizchat.Web.Areas.Api.Controllers
         public IEnumerable<ChatUser> Members(int chatRoomId)
             => _chatRoomsRepository.ListMembers(chatRoomId);
 
+        [HttpGet("{chatRoomId}/Received")]
+        public IEnumerable<ChatMessageReceivedByChatRoomEvent> ListReceived(int chatRoomId)
+        {
+            var chatRoom = _chatRoomsRepository.Find(chatRoomId);
+
+            return _receivedMessages.ListLatestByChatRoom(chatRoom, 50).OrderBy(m => m.DateReceived);
+        }
+
         [HttpPost("{name}")]
         public void CreateChatGroup(string name)
         {
-            var user = GetCurrentChatUser();
+            var user = _chatUsersRepository.FindByPrincipal(User);
 
             var newChatRoom = _chatRoomsRepository.Create(user, name);
 

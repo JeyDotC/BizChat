@@ -9,7 +9,7 @@ namespace Bizchat.Ef.Repositories
 {
     public class EfChatRoomsRepository : IChatRoomsRepository
     {
-        private BizchatDbContext _db;
+        private readonly BizchatDbContext _db;
 
         public EfChatRoomsRepository(BizchatDbContext db)
         {
@@ -51,24 +51,6 @@ namespace Bizchat.Ef.Repositories
 
         public IQueryable<ChatRoom> ListWhereUserIsMember(ChatUser member)
             => _db.ChatRoomMemberships.Where(m => m.ChatUserId == member.Id).Select(m => m.ChatRoom);
-
-        public IEnumerable<ChatMessage> ListReceivedMessages(int chatRoomId)
-            => _db.ChatRoomReceivedMessages.Where(r => r.ChatRoomId == chatRoomId).Select(r => r.ChatMessage);
-
-        public void ReceiveMessage(int chatRoomId, ChatMessage message)
-        {
-            var chatRoom = Find(chatRoomId);
-
-            _db.ChatRoomReceivedMessages.Add(new Tables.ChatRoomReceivedMessages
-            {
-                ChatMessage = message,
-                ChatMessageId = message.Id,
-                ChatRoom = chatRoom,
-                ChatRoomId = chatRoom.Id
-            });
-
-            _db.SaveChanges();
-        }
 
         public IQueryable<ChatRoom> List
             => _db.ChatRooms;

@@ -8,6 +8,8 @@ namespace Bizchat.Core.Repositories
 {
     public interface IChatUsersRepository
     {
+        ChatUser Find(int id);
+
         void Add(ChatUser chatUser);
 
         IQueryable<ChatUser> List { get; }

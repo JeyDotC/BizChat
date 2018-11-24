@@ -19,9 +19,5 @@ namespace Bizchat.Core.Repositories
         IQueryable<ChatRoom> ListWhereUserIsMember(ChatUser member);
 
         IEnumerable<ChatUser> ListMembers(int chatRoomId);
-
-        IEnumerable<ChatMessage> ListReceivedMessages(int chatRoomId);
-
-        void ReceiveMessage(int chatRoomId, ChatMessage message);
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Bizchat.Core.Events;
+using Bizchat.Core.Exceptions;
 using Bizchat.Core.Repositories;
 using Bizchat.Core.Services;
 using Bizchat.Core.Verbs;
@@ -12,21 +13,37 @@ namespace Bizchat.DeliverToChatRoomApp.NServicebus
 {
     public class DeliverToChatRoomHandler : IHandleMessages<ChatMessageSentEvent>
     {
-        private readonly ReceiveMessageVerb _receiveMessageVerb;
+        private readonly ReceiveMessageAtChatRoomVerb _receiveMessageVerb;
+        private readonly IChatRoomsRepository _chatRoomsRepository;
 
-        public DeliverToChatRoomHandler(ReceiveMessageVerb receiveMessageVerb)
+        public DeliverToChatRoomHandler(ReceiveMessageAtChatRoomVerb receiveMessageVerb, IChatRoomsRepository chatRoomsRepository)
         {
             _receiveMessageVerb = receiveMessageVerb;
+            _chatRoomsRepository = chatRoomsRepository;
         }
 
         public async Task Handle(ChatMessageSentEvent message, IMessageHandlerContext context)
         {
-            await _receiveMessageVerb.Run(message);
 
-            await context.Publish(new ChatMessageReceivedEvent
+            try
             {
-                ChatMessage = message.Contents
-            });
+                var result = await _receiveMessageVerb.Run(message);
+                await context.Publish(result);
+            }
+            catch (InvalidDestinationException)
+            {
+                // Assume the message is not for me, ignore for now. The exception should also be logged.
+                return;
+            }
+            catch(PermissionException ex)
+            {
+                await context.Publish(new ChatMessageRejectedEvent
+                {
+                    DateRejected = DateTime.Now,
+                    OriginalMessage = message,
+                    Reason = ex.Message
+                });
+            }
         }
     }
 }

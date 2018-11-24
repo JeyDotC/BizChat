@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace Bizchat.Core.Verbs
 {
-    public interface IVerb<in InputType>
+    public interface IVerb<in InputType, TResult>
     {
-        Task Run(InputType inputType);
+        Task<TResult> Run(InputType inputType);
     }
 }

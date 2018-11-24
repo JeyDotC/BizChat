@@ -8,6 +8,8 @@ namespace Bizchat.Core.Repositories
 {
     public interface IChatMessagesRepository
     {
+        ChatMessage Find(int id);
+
         IQueryable<ChatMessage> List { get; }
 
         void Add(ChatMessage message);

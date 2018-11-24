@@ -21,25 +21,12 @@ namespace Bizchat.DeliverToChatRoomApp.NServicebus
         static async Task Main(string[] args)
         {
             Console.Title = "Group";
-            var configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build();
 
-            var kernel = new StandardKernel();
+            var configuration = GetConfiguration();
+
+            var kernel = ConfigureKernel(configuration.GetConnectionString("DefaultConnection"));
 
             var endpointConfiguration = EndPointConfigurationFactory.Create();
-
-            kernel.Bind<DbContextOptions<BizchatDbContext>>()
-                .ToMethod(context => new DbContextOptionsBuilder<BizchatDbContext>()
-                            .UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-                            .Options);
-            kernel.Bind<BizchatDbContext>()
-                .ToSelf();
-            kernel.Bind<IChatRoomsRepository, EfChatRoomsRepository>();
-            kernel.Bind<IChatMessagesRepository, EfChatMessagesRepository>();
-            kernel.Bind<IQueueMessagesService, NServiceBusQueueMessagesService>();
-            kernel.Bind<ReceiveMessageVerb>()
-                .ToSelf();
 
             endpointConfiguration.UseContainer<NinjectBuilder>(customizations =>
             {
@@ -55,5 +42,46 @@ namespace Bizchat.DeliverToChatRoomApp.NServicebus
             await endpointInstance.Stop()
                 .ConfigureAwait(false);
         }
+
+        private static IKernel ConfigureKernel(string connectionString)
+        {
+            var kernel = new StandardKernel();
+
+            kernel.Bind<DbContextOptions<BizchatDbContext>>()
+                .ToMethod(context => new DbContextOptionsBuilder<BizchatDbContext>()
+                            .EnableSensitiveDataLogging()
+                            .UseSqlServer(connectionString).Options);
+
+            kernel.Bind<BizchatDbContext>()
+                .ToSelf();
+
+            kernel.Bind<IChatRoomsRepository>()
+                .To<EfChatRoomsRepository>();
+
+            kernel.Bind<IChatMessagesRepository>()
+                .To<EfChatMessagesRepository>();
+
+            kernel.Bind<IChatMessageReceivedByChatRoomEventsRepository>()
+                .To<EfChatMessageReceivedByChatRoomEventsRepository>();
+
+            kernel.Bind<IChatMessageSentEventsRepository>()
+                .To<EfChatMessageSentEventsRepository>();
+
+            kernel.Bind<IChatUsersRepository>()
+                .To<EfChatUsersRepository>();
+
+            kernel.Bind<IQueueMessagesService>()
+                .To<NServiceBusQueueMessagesService>();
+
+            kernel.Bind<ReceiveMessageAtChatRoomVerb>()
+                .ToSelf();
+
+            return kernel;
+        }
+
+        private static IConfiguration GetConfiguration()
+            => new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
     }
 }

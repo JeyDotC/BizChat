@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bizchat.Core.Repositories;
 using Bizchat.Core.Services;
+using Bizchat.Core.Verbs;
 using Bizchat.Ef;
 using Bizchat.Ef.Repositories;
 using Bizchat.NServiceBus;
@@ -60,8 +61,11 @@ namespace Bizchat.Web
             services.AddTransient<IChatRoomsRepository, EfChatRoomsRepository>();
             services.AddTransient<IChatUsersRepository, EfChatUsersRepository>();
             services.AddTransient<IChatMessagesRepository, EfChatMessagesRepository>();
+            services.AddTransient<IChatMessageReceivedByChatRoomEventsRepository, EfChatMessageReceivedByChatRoomEventsRepository>();
+            services.AddTransient<IChatMessageSentEventsRepository, EfChatMessageSentEventsRepository>();
 
             services.AddTransient<IQueueMessagesService, NServiceBusQueueMessagesService>();
+            services.AddTransient<SendMessageVerb>();
 
             // NServiceBus settings
             var endpointConfiguration = EndPointConfigurationFactory.Create();

@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bizchat.Web.Migrations
 {
     [DbContext(typeof(BizchatDbContext))]
-    [Migration("20181122233233_BizChat")]
-    partial class BizChat
+    [Migration("20181124042112_Bizchat_InitialSetup")]
+    partial class Bizchat_InitialSetup
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,6 +28,8 @@ namespace Bizchat.Web.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Contents");
+
+                    b.Property<DateTime>("DateCreated");
 
                     b.Property<string>("Destination");
 
@@ -72,6 +74,44 @@ namespace Bizchat.Web.Migrations
                     b.ToTable("ChatUsers");
                 });
 
+            modelBuilder.Entity("Bizchat.Core.Events.ChatMessageReceivedByChatRoomEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("ChatMessageId");
+
+                    b.Property<int?>("ChatRoomId");
+
+                    b.Property<DateTime>("DateReceived");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatMessageId");
+
+                    b.HasIndex("ChatRoomId");
+
+                    b.ToTable("ChatMessageReceivedByChatRoomEvents");
+                });
+
+            modelBuilder.Entity("Bizchat.Core.Events.ChatMessageSentEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("ContentsId");
+
+                    b.Property<DateTime>("DateSent");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContentsId");
+
+                    b.ToTable("ChatMessageSentEvents");
+                });
+
             modelBuilder.Entity("Bizchat.Ef.Tables.ChatRoomMembership", b =>
                 {
                     b.Property<int>("ChatRoomId");
@@ -83,19 +123,6 @@ namespace Bizchat.Web.Migrations
                     b.HasIndex("ChatUserId");
 
                     b.ToTable("ChatRoomMemberships");
-                });
-
-            modelBuilder.Entity("Bizchat.Ef.Tables.ChatRoomReceivedMessages", b =>
-                {
-                    b.Property<int>("ChatRoomId");
-
-                    b.Property<int>("ChatMessageId");
-
-                    b.HasKey("ChatRoomId", "ChatMessageId");
-
-                    b.HasIndex("ChatMessageId");
-
-                    b.ToTable("ChatRoomReceivedMessages");
                 });
 
             modelBuilder.Entity("Bizchat.Core.Entities.ChatMessage", b =>
@@ -112,6 +139,24 @@ namespace Bizchat.Web.Migrations
                         .HasForeignKey("OwnerId");
                 });
 
+            modelBuilder.Entity("Bizchat.Core.Events.ChatMessageReceivedByChatRoomEvent", b =>
+                {
+                    b.HasOne("Bizchat.Core.Entities.ChatMessage", "ChatMessage")
+                        .WithMany()
+                        .HasForeignKey("ChatMessageId");
+
+                    b.HasOne("Bizchat.Core.Entities.ChatRoom", "ChatRoom")
+                        .WithMany()
+                        .HasForeignKey("ChatRoomId");
+                });
+
+            modelBuilder.Entity("Bizchat.Core.Events.ChatMessageSentEvent", b =>
+                {
+                    b.HasOne("Bizchat.Core.Entities.ChatMessage", "Contents")
+                        .WithMany()
+                        .HasForeignKey("ContentsId");
+                });
+
             modelBuilder.Entity("Bizchat.Ef.Tables.ChatRoomMembership", b =>
                 {
                     b.HasOne("Bizchat.Core.Entities.ChatRoom", "ChatRoom")
@@ -122,19 +167,6 @@ namespace Bizchat.Web.Migrations
                     b.HasOne("Bizchat.Core.Entities.ChatUser", "ChatUser")
                         .WithMany()
                         .HasForeignKey("ChatUserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Bizchat.Ef.Tables.ChatRoomReceivedMessages", b =>
-                {
-                    b.HasOne("Bizchat.Core.Entities.ChatMessage", "ChatMessage")
-                        .WithMany()
-                        .HasForeignKey("ChatMessageId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Bizchat.Core.Entities.ChatRoom", "ChatRoom")
-                        .WithMany()
-                        .HasForeignKey("ChatRoomId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

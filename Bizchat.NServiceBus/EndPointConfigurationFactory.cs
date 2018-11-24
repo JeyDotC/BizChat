@@ -13,6 +13,12 @@ namespace Bizchat.NServiceBus
 
             endpointConfiguration.UseTransport<LearningTransport>();
 
+            endpointConfiguration.Conventions()
+                .DefiningEventsAs(type =>
+                {
+                    return type.Name.EndsWith("Event");
+                });
+
             /*endpointConfiguration.UseTransport<RabbitMQTransport>()
                     .UseConventionalRoutingTopology()
                     .ConnectionString("host=localhost");*/

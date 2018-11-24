@@ -9,12 +9,15 @@ namespace Bizchat.Ef.Repositories
 {
     public class EfChatUsersRepository : IChatUsersRepository
     {
-        private BizchatDbContext _db;
+        private readonly BizchatDbContext _db;
 
         public EfChatUsersRepository(BizchatDbContext db)
         {
             _db = db;
         }
+
+        public ChatUser Find(int id)
+         => _db.ChatUsers.Find(id);
 
         public void Add(ChatUser chatUser)
         {

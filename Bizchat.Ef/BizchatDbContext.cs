@@ -1,5 +1,6 @@
 ﻿using System;
 using Bizchat.Core.Entities;
+using Bizchat.Core.Events;
 using Bizchat.Ef.Tables;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,12 +21,13 @@ namespace Bizchat.Ef
 
         public DbSet<ChatRoomMembership> ChatRoomMemberships { get; set; }
 
-        public DbSet<ChatRoomReceivedMessages> ChatRoomReceivedMessages { get; set; }
+        public DbSet<ChatMessageSentEvent> ChatMessageSentEvents { get; set; }
+
+        public DbSet<ChatMessageReceivedByChatRoomEvent> ChatMessageReceivedByChatRoomEvents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ChatRoomMembership>().HasKey(m => new { m.ChatRoomId, m.ChatUserId });
-            modelBuilder.Entity<ChatRoomReceivedMessages>().HasKey(m => new { m.ChatRoomId, m.ChatMessageId });
         }
     }
 }

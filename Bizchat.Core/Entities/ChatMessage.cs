@@ -13,9 +13,7 @@ namespace Bizchat.Core.Entities
 
         public string Destination { get; set; }
 
-        public DateTime DateSent { get; set; } = DateTime.Now;
-
-        public DateTime DateReceived { get; set; }
+        public DateTime DateCreated { get; set; }
 
         public override bool Equals(object obj)
         {

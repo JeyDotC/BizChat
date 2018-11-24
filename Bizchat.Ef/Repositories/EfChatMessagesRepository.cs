@@ -4,17 +4,21 @@ using System.Linq;
 using System.Text;
 using Bizchat.Core.Entities;
 using Bizchat.Core.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bizchat.Ef.Repositories
 {
     public class EfChatMessagesRepository : IChatMessagesRepository
     {
-        private BizchatDbContext _db;
+        private readonly BizchatDbContext _db;
 
         public EfChatMessagesRepository(BizchatDbContext db)
         {
             _db = db;
         }
+
+        public ChatMessage Find(int id)
+            => _db.ChatMessages.Include(m => m.Sender).FirstOrDefault(m => m.Id == id);
 
         public IQueryable<ChatMessage> List => _db.ChatMessages;
 

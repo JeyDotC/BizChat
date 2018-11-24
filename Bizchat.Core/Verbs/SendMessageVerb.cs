@@ -5,54 +5,44 @@ using System.Text;
 using System.Threading.Tasks;
 using Bizchat.Core.Entities;
 using Bizchat.Core.Events;
+using Bizchat.Core.Repositories;
 using Bizchat.Core.Services;
 
 namespace Bizchat.Core.Verbs
 {
-    public class SendMessageVerb : IVerb<ChatMessage>
+    public class SendMessageVerb : IVerb<ChatMessage, ChatMessageSentEvent>
     {
         private readonly IQueueMessagesService _messageQueuer;
+        private readonly IChatMessagesRepository _chatMessagesRepository;
+        private readonly IChatMessageSentEventsRepository _messageSentEvents;
 
-        private readonly IEnumerable<IRouteMessagesService> _messageRouters;
-
-        public SendMessageVerb(IQueueMessagesService messageQueuer, params IRouteMessagesService[] messageRouters) : this(messageQueuer, messageRouters as IEnumerable<IRouteMessagesService>)
+        public SendMessageVerb(
+            IQueueMessagesService messageQueuer, 
+            IChatMessagesRepository chatMessagesRepository,
+            IChatMessageSentEventsRepository messageSentEvents)
         {
+            _messageQueuer = messageQueuer;
+            _chatMessagesRepository = chatMessagesRepository;
+            _messageSentEvents = messageSentEvents;
         }
 
-        public SendMessageVerb(IQueueMessagesService messageQueuer, IEnumerable<IRouteMessagesService> messageRouters)
+        public async Task<ChatMessageSentEvent> Run(ChatMessage message)
         {
-            _messageQueuer = messageQueuer ?? throw new ArgumentNullException(nameof(messageQueuer));
-            _messageRouters = messageRouters ?? throw new ArgumentNullException(nameof(messageRouters));
-        }
+            message.DateCreated = DateTime.Now;
 
-        public async Task Run(ChatMessage message)
-        {
-            message.DateSent = DateTime.Now;
+            _chatMessagesRepository.Add(message);
 
-            var messagesToQueue = RouteMessage(message);
-
-            foreach (var messageToQueue in messagesToQueue)
+            var chatMessageSentEvent = new ChatMessageSentEvent
             {
-               await _messageQueuer.QueueMessage(messageToQueue);
-            }
-        }
+                Contents = message,
+                DateSent = DateTime.Now
+            };
 
-        private IEnumerable<ChatMessageSentEvent> RouteMessage(ChatMessage message)
-        {
-            var capableRouters = _messageRouters.Where(r => r.ICanRoute(message));
-            var exclusiveRouter = capableRouters.FirstOrDefault(r => r.ExcludeOtherRouters(message));
+            _messageSentEvents.Add(chatMessageSentEvent);
 
-            if (exclusiveRouter != null)
-            {
-                yield return exclusiveRouter.Route(message);
-            }
-            else
-            {
-                foreach (var router in capableRouters)
-                {
-                    yield return router.Route(message);
-                }
-            }
+            await _messageQueuer.QueueMessage(chatMessageSentEvent);
+            
+            return chatMessageSentEvent;
         }
     }
 }
