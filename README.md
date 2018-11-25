@@ -23,7 +23,7 @@ I made so many changes to the architecture while developing that syncing them wo
 
 #### The transport for messages is not RabbitMQ
 
-This will appply to the bonus part (The bot service) which I'll add in a few moments. 
+This will appply to the bonus part (The bot service) ~which I'll add in a few moments~.
 
 Though since I used an abstraction (NServiceBus), configuring RabbitMQ should be easy for anyone with good knowledge of that technology.
 
