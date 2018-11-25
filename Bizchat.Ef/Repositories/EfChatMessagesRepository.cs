@@ -5,6 +5,7 @@ using System.Text;
 using Bizchat.Core.Entities;
 using Bizchat.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Bizchat.Ef.Repositories
 {
@@ -24,6 +25,8 @@ namespace Bizchat.Ef.Repositories
 
         public void Add(ChatMessage message)
         {
+            AvoidSenderInsertAttempt(message);
+
             _db.ChatMessages.Add(message);
 
             _db.SaveChanges();
@@ -31,9 +34,19 @@ namespace Bizchat.Ef.Repositories
 
         public void Update(ChatMessage message)
         {
+            AvoidSenderInsertAttempt(message);
+
             _db.ChatMessages.Update(message);
 
             _db.UpdateRange();
+        }
+
+        private void AvoidSenderInsertAttempt(ChatMessage message)
+        {
+            foreach (var entry in _db.ChangeTracker.Entries<ChatUser>())
+            {
+                entry.State = EntityState.Unchanged;
+            }
         }
     }
 }

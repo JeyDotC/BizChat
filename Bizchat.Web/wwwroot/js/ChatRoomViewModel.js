@@ -22,8 +22,12 @@
 
     self.SendMessage = () => self.ChatMessages.SendMessage({
         contents: self.NewMessageText(),
-        destination: 'chatroom://' + self.Id()
+        destination: CalculateDestination(self.NewMessageText()) + '://' + self.Id()
     }).done(() => self.NewMessageText(''));
+
+    function CalculateDestination(contents) {
+        return /^\/([a-z]+)/ig.test(contents) ? 'bot' : 'chatroom';
+    }
 }
 
 ChatRoomViewModel.FromData = data => {

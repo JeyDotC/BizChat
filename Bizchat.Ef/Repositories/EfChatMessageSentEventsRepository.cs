@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Bizchat.Core.Events;
 using Bizchat.Core.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bizchat.Ef.Repositories
 {
@@ -17,6 +18,16 @@ namespace Bizchat.Ef.Repositories
 
         public void Add(ChatMessageSentEvent chatMessageSentEvent)
         {
+            if (chatMessageSentEvent.Contents != null)
+            {
+                _db.Entry(chatMessageSentEvent.Contents).State = EntityState.Unchanged;
+
+                if (chatMessageSentEvent.Contents.Sender != null)
+                {
+                    _db.Entry(chatMessageSentEvent.Contents.Sender).State = EntityState.Unchanged;
+                }
+            }
+
             _db.ChatMessageSentEvents.Add(chatMessageSentEvent);
 
             _db.SaveChanges();

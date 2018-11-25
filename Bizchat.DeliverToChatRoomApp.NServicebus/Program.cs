@@ -34,7 +34,9 @@ namespace Bizchat.DeliverToChatRoomApp.NServicebus
             });
 
             var endpointInstance = await Endpoint.Start(endpointConfiguration)
-                .ConfigureAwait(false);
+                    .ConfigureAwait(false);
+
+            kernel.Bind<IMessageSession>().ToConstant(endpointInstance);
 
             Console.WriteLine("Press Enter to exit.");
             Console.ReadLine();

@@ -33,6 +33,7 @@
     <ProjectReference Include="..\Bizchat.Core\Bizchat.Core.csproj" />
     <ProjectReference Include="..\Bizchat.Ef\Bizchat.Ef.csproj" />
     <ProjectReference Include="..\Bizchat.NServiceBus\Bizchat.NServiceBus.csproj" />
+    <ProjectReference Include="..\Bizchat.StockChatBot\Bizchat.StockChatBot.csproj" />
   </ItemGroup>
 
   <ItemGroup>
